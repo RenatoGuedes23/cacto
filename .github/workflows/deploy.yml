@@ -25,6 +25,27 @@ jobs:
           overwrite: true
           debug: true
 
+      - name: Clean up Docker resources
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: 98.84.170.141
+          username: root
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            docker container prune -f
+            docker volume prune -f
+            docker network prune -f
+
+      - name: Stop Docker Compose services
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: 98.84.170.141
+          username: root
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/app
+            docker-compose down
+
       - name: Run Docker Compose
         uses: appleboy/ssh-action@v0.1.5
         with:
@@ -34,13 +55,3 @@ jobs:
           script: |
             cd /home/ubuntu/app
             docker-compose up -d --build
-
-      # - name: Run Docker ps
-      #   uses: appleboy/ssh-action@v0.1.5
-      #   with:
-      #     host: 98.84.170.141
-      #     username: root
-      #     key: ${{ secrets.AWS_SSH_KEY }}
-      #     script: |
-      #       cd /home/ubuntu/app
-      #       docker ps
