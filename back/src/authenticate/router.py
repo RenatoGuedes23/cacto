@@ -6,8 +6,8 @@ from config.logger.base_logger import logger
 from src.authenticate.schemas import ApicLoginSchema
 from src.authenticate.models import AutenticateResponseModel, OkResponse, ErrorResponse
 
-# Definir a aplicação FastAPI
-app = FastAPI()
+# # Definir a aplicação FastAPI
+# app = FastAPI()
 
 
 autenticate_router = APIRouter(
@@ -16,10 +16,10 @@ autenticate_router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-# Definir rota de status
-@app.get("/status")
-async def status():
-    return {"status": "ok"}
+# # Definir rota de status
+# @app.get("/status")
+# async def status():
+#     return {"status": "ok"}
 
 
 @autenticate_router.post(
