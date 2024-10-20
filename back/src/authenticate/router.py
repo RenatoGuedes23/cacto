@@ -1,4 +1,5 @@
-from fastapi import FastAPI, APIRouter, status, Request, Response, HTTPException
+from fastapi import FastAPI, APIRouter, Request, Response, HTTPException
+from fastapi import status  # Importar status corretamente
 
 from config.request.base_session import requests_session
 from config.logger.base_logger import logger
@@ -10,7 +11,7 @@ app = FastAPI()
 
 # Definir rota de status
 @app.get("/status")
-async def status():
+async def get_status():
     return {"status": "ok"}
 
 autenticate_router = APIRouter(
