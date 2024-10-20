@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+
+  database_service:
+    platform: linux/amd64
+    image: mysql:9.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: "database_app"
+      MYSQL_USER: "userdev"
+      MYSQL_PASSWORD: "ntt@labaci"
+      MYSQL_ROOT_PASSWORD: "ntt@labaciroot"
+    ports:
+      - "3306:3306"
+    volumes:
+      - db:/var/lib/mysql
+    networks:
+      - aci_api_default
+
+  backend:
+    build: /home/ubuntu/cacto/back/back
+    restart: always
+    env_file:
+      - /home/ubuntu/cacto/back/back/.env_example
+    depends_on:
+      - database_service
+    ports:
+      - "8000:8000"
+    networks:
+      - aci_api_default
+
+  frontend:
+    build: /home/ubuntu/cacto/front/front
+    restart: always
+    ports:
+      - "5173:5173"
+    volumes:
+      - /home/ubuntu/cacto/front/front:/app
+    depends_on:
+      - backend
+      - database_service
+    networks:
+      - aci_api_default
+
+volumes:
+  db:
+
+networks:
+  aci_api_default:
+    driver: bridge

@@ -1,0 +1,50 @@
+services:
+
+  # database_service:
+  #   platform: linux/amd64
+  #   image: mysql:9.0
+  #   restart: always
+  #   environment:
+  #     MYSQL_DATABASE: "database_app"
+  #     MYSQL_USER: "userdev"
+  #     MYSQL_PASSWORD: "ntt@labaci"
+  #     MYSQL_ROOT_PASSWORD: "ntt@labaciroot"
+  #   ports:
+  #     # <Port exposed> : <MySQL Port running inside container>
+  #     - "3306:3306"
+  #   expose:
+  #     # Opens port 3306 on the container
+  #     - "3306"
+  #   volumes:
+  #     - db:/var/lib/mysql
+  #   networks:
+  #     - aci_api_default
+
+  aci_api_service:
+    image: aci_api:v1.0.0
+    restart: always
+    env_file:
+      - path: .env
+        required: true
+    # depends_on:
+    #   - database_service
+    ports:
+      # <Port exposed> : <App Port running inside container>
+      - "8000:8000"
+    expose:
+      # Opens port 8000 on the container
+      - "8000"
+
+    networks:
+      - aci_api_default
+
+
+# Names our volume
+volumes:
+  db:
+
+    
+networks:
+  aci_api_default :
+    name: aci_api_default
+    external: true

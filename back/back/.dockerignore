@@ -1,0 +1,22 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore git files
+.git/
+.gitignore
+
+# Ignore Dockerfile and docker-compose files
+Dockerfile
+docker-compose.yml
+
+# Ignore environment variables files
+.venv
+
+# Ignore logs
+*.log
+
+# Ignore any other unnecessary files or directories
+node_modules/
+dist/
+build/
