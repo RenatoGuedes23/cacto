@@ -23,6 +23,7 @@ jobs:
           target: "/home/ubuntu/app"
           strip_components: 1
           overwrite: true
+          debug: true
 
       - name: Run Docker Compose
         uses: appleboy/ssh-action@v0.1.5
