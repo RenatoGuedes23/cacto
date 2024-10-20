@@ -19,10 +19,10 @@ services:
       - aci_api_default
 
   backend:
-    build: /home/ubuntu/cacto/back
+    build: /home/ubuntu/app/back
     restart: always
     env_file:
-      - /home/ubuntu/cacto/back/.env
+      - /home/ubuntu/app/back/.env
     depends_on:
       - database_service
     ports:
@@ -31,12 +31,12 @@ services:
       - aci_api_default
 
   frontend:
-    build: /home/ubuntu/cacto/front
+    build: /home/ubuntu/app/front
     restart: always
     ports:
       - "5173:5173"
     volumes:
-      - /home/ubuntu/cacto/front:/app
+      - /home/ubuntu/app/front:/app
     depends_on:
       - backend
       - database_service
