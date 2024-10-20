@@ -34,3 +34,13 @@ jobs:
           script: |
             cd /home/ubuntu/app
             docker-compose up -d --build
+
+      # - name: Run Docker ps
+      #   uses: appleboy/ssh-action@v0.1.5
+      #   with:
+      #     host: 98.84.170.141
+      #     username: root
+      #     key: ${{ secrets.AWS_SSH_KEY }}
+      #     script: |
+      #       cd /home/ubuntu/app
+      #       docker ps
