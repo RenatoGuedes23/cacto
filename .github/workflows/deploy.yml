@@ -9,6 +9,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      EC2_HOST: 54.89.189.185
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -43,7 +46,7 @@ jobs:
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: 54.89.189.185
+          host: ${{ env.EC2_HOST }}
           username: root
           key: ${{ secrets.AWS_SSH_KEY }}
           source: "."
@@ -55,7 +58,7 @@ jobs:
       - name: Authenticate Docker to ECR
         uses: appleboy/ssh-action@v0.1.5
         with:
-          host: 54.89.189.185
+          host: ${{ env.EC2_HOST }}
           username: root
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
@@ -64,7 +67,7 @@ jobs:
       - name: Clean up Docker resources
         uses: appleboy/ssh-action@v0.1.5
         with:
-          host: 54.89.189.185
+          host: ${{ env.EC2_HOST }}
           username: root
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
@@ -75,7 +78,7 @@ jobs:
       - name: Stop Docker Compose services
         uses: appleboy/ssh-action@v0.1.5
         with:
-          host: 54.89.189.185
+          host: ${{ env.EC2_HOST }}
           username: root
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
@@ -85,7 +88,7 @@ jobs:
       - name: Run Docker Compose
         uses: appleboy/ssh-action@v0.1.5
         with:
-          host: 54.89.189.185
+          host: ${{ env.EC2_HOST }}
           username: root
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
