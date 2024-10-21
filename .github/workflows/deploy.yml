@@ -64,6 +64,16 @@ jobs:
           script: |
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 337909775686.dkr.ecr.us-east-1.amazonaws.com
 
+      - name: Stop Docker Compose services
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: root
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/app
+            docker-compose down
+
       - name: Clean up Docker resources
         uses: appleboy/ssh-action@v0.1.5
         with:
@@ -74,16 +84,7 @@ jobs:
             docker container prune -f
             docker volume prune -f
             docker network prune -f
-    
-      - name: Stop Docker Compose services
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          host: ${{ env.EC2_HOST }}
-          username: root
-          key: ${{ secrets.AWS_SSH_KEY }}
-          script: |
-            cd /home/ubuntu/app
-            docker-compose down
+            docker image prune -a -f
 
       - name: Run Docker Compose
         uses: appleboy/ssh-action@v0.1.5
