@@ -20,7 +20,6 @@ export default defineConfig({
   build: {
     rollupOptions: {
       external: [
-        '@opentelemetry/sdk-trace-web',
         '@opentelemetry/instrumentation-xml-http-request'
       ]
     }
