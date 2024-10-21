@@ -1,20 +1,14 @@
-const { NodeSDK } = require('@opentelemetry/sdk-node');
-const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
-const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
-const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-http');
+import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
+import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { XMLHttpRequestInstrumentation } from '@opentelemetry/instrumentation-xml-http-request';
+import { registerInstrumentations } from '@opentelemetry/instrumentation';
 
-const traceExporter = new OTLPTraceExporter({
-  url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
+const provider = new WebTracerProvider();
+provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
+provider.register();
+
+registerInstrumentations({
+  instrumentations: [
+    new XMLHttpRequestInstrumentation(),
+  ],
 });
-
-const metricExporter = new OTLPMetricExporter({
-  url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
-});
-
-const sdk = new NodeSDK({
-  traceExporter,
-  metricExporter,
-  instrumentations: [getNodeAutoInstrumentations()],
-});
-
-sdk.start();
