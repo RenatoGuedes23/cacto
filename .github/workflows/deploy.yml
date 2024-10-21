@@ -28,15 +28,17 @@ jobs:
 
       - name: Build and push backend Docker image
         run: |
-          docker build -t backend ./back
-          docker tag backend:latest 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:latest
-          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:latest
+          TAG=${{ github.sha }}
+          docker build -t backend:$TAG ./back
+          docker tag backend:$TAG 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:$TAG
+          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:$TAG
 
       - name: Build and push frontend Docker image
         run: |
-          docker build -t frontend ./front
-          docker tag frontend:latest 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:latest
-          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:latest
+          TAG=${{ github.sha }}
+          docker build -t frontend:$TAG ./front
+          docker tag frontend:$TAG 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:$TAG
+          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:$TAG
 
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -67,4 +69,6 @@ jobs:
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
             cd /home/ubuntu/app
+            sed -i 's|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:latest|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:${{ github.sha }}|g' docker-compose.yml
+            sed -i 's|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:latest|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:${{ github.sha }}|g' docker-compose.yml
             docker-compose up -d --build
