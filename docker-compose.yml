@@ -17,7 +17,7 @@ services:
       - aci_api_default
 
   backend:
-    build: /home/ubuntu/app/back
+    image: 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:latest
     restart: always
     env_file:
       - /home/ubuntu/app/back/.env
@@ -29,7 +29,7 @@ services:
       - aci_api_default
 
   frontend:
-    build: /home/ubuntu/app/front
+    image: 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:latest
     restart: always
     ports:
       - "5173:5173"
