@@ -17,4 +17,9 @@ export default defineConfig({
   optimizeDeps: {
     include: ["esm-dep > cjs-dep"],
   },
+  build: {
+    rollupOptions: {
+      external: ['@opentelemetry/sdk-trace-web']
+    }
+  }
 });
