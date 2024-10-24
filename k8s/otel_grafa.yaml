@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: otel
-        image: grafana/otel-lgmt
+        image: grafana/otel-lgtm
         ports:
         - containerPort: 3000
         - containerPort: 4317
