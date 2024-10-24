@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel
+  template:
+    metadata:
+      labels:
+        app: otel
+    spec:
+      containers:
+      - name: otel
+        image: grafana/otel-lgmt
+        ports:
+        - containerPort: 3000
+        - containerPort: 4317
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-service
+spec:
+  selector:
+    app: otel
+  ports:
+  - protocol: TCP
+    port: 3000
+    targetPort: 3000
+  - protocol: TCP
+    port: 4317
+    targetPort: 4317
+  type: LoadBalancer
