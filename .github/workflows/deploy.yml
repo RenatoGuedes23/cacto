@@ -45,9 +45,6 @@ jobs:
         run: |
           aws eks update-kubeconfig --region us-east-1 --name ntt-apic
 
-      - name: List files in k8s directory
-        run: ls -la k8s
-
       - name: Apply deployment file on Kubernetes
         run: |
           sed -i 's|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:latest|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:${{ github.sha }}|g' ./k8s/api-aci-deployment.yaml
