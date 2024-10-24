@@ -1,4 +1,4 @@
-name: Deploy to AWS EC2
+name: Deploy to Kubernetes
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      EC2_HOST: 54.225.12.105
+      KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
 
     steps:
       - name: Checkout code
@@ -29,71 +29,19 @@ jobs:
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build and push backend Docker image
+      - name: Build and push Docker image
         run: |
           TAG=${{ github.sha }}
-          docker build -t backend:$TAG ./back
-          docker tag backend:$TAG 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:$TAG
-          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:$TAG
+          docker build -t aci-apic:$TAG ./back
+          docker tag aci-apic:$TAG 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/aci-apic:$TAG
+          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/aci-apic:$TAG
 
-      - name: Build and push frontend Docker image
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          version: 'latest'
+
+      - name: Apply deployment file on Kubernetes
         run: |
-          TAG=${{ github.sha }}
-          docker build -t frontend:$TAG ./front
-          docker tag frontend:$TAG 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:$TAG
-          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:$TAG
-
-      - name: Copy files to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ env.EC2_HOST }}
-          username: root
-          key: ${{ secrets.AWS_SSH_KEY }}
-          source: "."
-          target: "/home/ubuntu/app"
-          strip_components: 1
-          overwrite: true
-          debug: true
-
-      - name: Authenticate Docker to ECR
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          host: ${{ env.EC2_HOST }}
-          username: root
-          key: ${{ secrets.AWS_SSH_KEY }}
-          script: |
-            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 337909775686.dkr.ecr.us-east-1.amazonaws.com
-
-      - name: Stop Docker Compose services
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          host: ${{ env.EC2_HOST }}
-          username: root
-          key: ${{ secrets.AWS_SSH_KEY }}
-          script: |
-            cd /home/ubuntu/app
-            docker-compose down
-
-      - name: Clean up Docker resources
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          host: ${{ env.EC2_HOST }}
-          username: root
-          key: ${{ secrets.AWS_SSH_KEY }}
-          script: |
-            docker container prune -f
-            docker volume prune -f
-            docker network prune -f
-            docker image prune -a -f
-
-      - name: Run Docker Compose
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          host: ${{ env.EC2_HOST }}
-          username: root
-          key: ${{ secrets.AWS_SSH_KEY }}
-          script: |
-            cd /home/ubuntu/app
-            sed -i 's|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:latest|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:${{ github.sha }}|g' docker-compose.yml
-            sed -i 's|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:latest|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:${{ github.sha }}|g' docker-compose.yml
-            docker-compose up -d --build
+          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
+          kubectl apply -f k8s/deployment.yaml

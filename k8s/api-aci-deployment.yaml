@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aci-apic-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aci-apic
+  template:
+    metadata:
+      labels:
+        app: aci-apic
+    spec:
+      containers:
+      - name: aci-apic
+        image: 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/aci-apic:${TAG}
+        ports:
+        - containerPort: 8000

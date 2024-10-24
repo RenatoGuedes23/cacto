@@ -1,0 +1,99 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      EC2_HOST: 54.225.12.105
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and push backend Docker image
+        run: |
+          TAG=${{ github.sha }}
+          docker build -t backend:$TAG ./back
+          docker tag backend:$TAG 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:$TAG
+          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:$TAG
+
+      - name: Build and push frontend Docker image
+        run: |
+          TAG=${{ github.sha }}
+          docker build -t frontend:$TAG ./front
+          docker tag frontend:$TAG 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:$TAG
+          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:$TAG
+
+      - name: Copy files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: root
+          key: ${{ secrets.AWS_SSH_KEY }}
+          source: "."
+          target: "/home/ubuntu/app"
+          strip_components: 1
+          overwrite: true
+          debug: true
+
+      - name: Authenticate Docker to ECR
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: root
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 337909775686.dkr.ecr.us-east-1.amazonaws.com
+
+      - name: Stop Docker Compose services
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: root
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/app
+            docker-compose down
+
+      - name: Clean up Docker resources
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: root
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            docker container prune -f
+            docker volume prune -f
+            docker network prune -f
+            docker image prune -a -f
+
+      - name: Run Docker Compose
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: root
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/app
+            sed -i 's|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:latest|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:${{ github.sha }}|g' docker-compose.yml
+            sed -i 's|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:latest|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/frontend:${{ github.sha }}|g' docker-compose.yml
+            docker-compose up -d --build
