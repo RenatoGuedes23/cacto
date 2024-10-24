@@ -32,9 +32,9 @@ jobs:
       - name: Build and push Docker image
         run: |
           TAG=${{ github.sha }}
-          docker build -t aci-apic:$TAG ./back
-          docker tag aci-apic:$TAG 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/aci-apic:$TAG
-          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/aci-apic:$TAG
+          docker build -t backend:$TAG ./back
+          docker tag backend:$TAG 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:$TAG
+          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:$TAG
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v1

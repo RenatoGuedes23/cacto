@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: aci-apic
-        image: 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/aci-apic:${TAG}
+        image: 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:${TAG}
         ports:
         - containerPort: 8000
