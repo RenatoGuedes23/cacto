@@ -45,6 +45,12 @@ jobs:
         run: |
           aws eks update-kubeconfig --region us-east-1 --name ntt-apic
 
+      - name: Listar contextos do kubectl
+        run: kubectl config get-contexts
+        
+      - name: Verificar conectividade com o cluster
+        run: kubectl get nodes
+        
       - name: Apply deployment file on Kubernetes
         run: |
           sed -i 's|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:latest|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:${{ github.sha }}|g' ./k8s/api-aci-deployment.yaml
