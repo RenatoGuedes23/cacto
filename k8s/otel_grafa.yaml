@@ -27,10 +27,12 @@ spec:
   selector:
     app: otel
   ports:
-  - protocol: TCP
+  - name: http
+    protocol: TCP
     port: 3000
     targetPort: 3000
-  - protocol: TCP
+  - name: grpc
+    protocol: TCP
     port: 4317
     targetPort: 4317
   type: LoadBalancer
