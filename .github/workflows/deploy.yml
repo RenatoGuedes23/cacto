@@ -33,8 +33,8 @@ jobs:
         run: |
           TAG=${{ github.sha }}
           docker build -t aci-apic:$TAG ./back
-          docker tag aci-apic:$TAG 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/aci-apic:$TAG
-          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/aci-apic:$TAG
+          docker tag aci-apic:$TAG 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:$TAG
+          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/prod/backend:$TAG
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v1
@@ -48,7 +48,7 @@ jobs:
       - name: List files in k8s directory
         run: ls -la k8s
 
-      - name: Deploy to EKS
+      - name: Apply deployment file on Kubernetes
         run: |
-          sed -i.bak "s|DOCKER_IMAGE|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/aci-apic:${{ github.sha }}|g" k8s/deployment.yaml
-          kubectl apply -f ./k8s/deployment.yaml
+          sed -i 's|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:latest|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:${{ github.sha }}|g' ./k8s/api-aci-deployment.yaml
+          kubectl apply -f ./k8s/api-aci-deployment.yaml
