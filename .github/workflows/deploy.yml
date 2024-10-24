@@ -48,4 +48,4 @@ jobs:
       - name: Apply deployment file on Kubernetes
         run: |
           sed -i 's|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:latest|337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:${{ github.sha }}|g' ./k8s/api-aci-deployment.yaml
-          kubectl apply -f ./k8s/api-aci-deployment.yaml
+          kubectl apply -f ./k8s/api-aci-deployment.yaml --validate=false
