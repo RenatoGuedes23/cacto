@@ -29,12 +29,12 @@ jobs:
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build and push Docker image
+      - name: Build and push backend Docker image
         run: |
           TAG=${{ github.sha }}
-          docker build -t aci-apic:$TAG ./back
-          docker tag aci-apic:$TAG 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:$TAG
-          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/prod/backend:$TAG
+          docker build -t backend:$TAG ./back
+          docker tag backend:$TAG 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:$TAG
+          docker push 337909775686.dkr.ecr.us-east-1.amazonaws.com/prod/backend:$TAG
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v1
