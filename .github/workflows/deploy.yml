@@ -41,6 +41,10 @@ jobs:
         with:
           version: 'latest'
 
+      - name: Create .kube directory
+        run: |
+          mkdir -p $HOME/.kube
+
       - name: Apply deployment file on Kubernetes
         run: |
           echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
